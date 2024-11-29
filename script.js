@@ -1,68 +1,104 @@
-
-const data = [
-  { id: 1, image: "images/air.png", name: "Black Nike Air", price: "300£" },
-  { id: 2, image: "images/air2.png", name: "Blue Nike Air", price: "300£" },
-  { id: 3, image: "images/blazer.png", name: "White Blazer", price: "300£" },
-  { id: 4, image: "images/blazer2.png", name: "Green Blazer", price: "300£" },
+const products = [
+  { id: 1, image: "images/air.png", name: "Black Nike Air", price: 300 },
+  { id: 2, image: "images/air2.png", name: "Blue Nike Air", price: 300 },
+  { id: 3, image: "images/blazer.png", name: "White Blazer", price: 300 },
+  { id: 4, image: "images/blazer2.png", name: "Green Blazer", price: 300 },
 ];
 
-
 const shoesContainer = document.querySelector('.shoes');
-let cart = []; // Array to hold cart items
+const cartBtn = document.querySelector('.cart-btn');
+const close = document.querySelector('.close');
+const sidebar = document.querySelector('.sidebar');
+const cartContainer = document.querySelector('.cart');
+const totalElement = document.getElementById('total');
+const countElement = document.querySelector('.cart-btn .count');
+const wrapper = document.querySelector(".sliderWrapper");
+const menuItems = document.querySelectorAll(".menuItem");
 
-// Function to display products
-function showProduct() {
-  shoesContainer.innerHTML = data.map((item) => `
-    <div class="shoe">
-      <img src="${item.image}" alt="${item.name}">
-      <p>${item.name}<br>${item.price}</p>
-      <button class="order-btn" onclick="addtoCart(${item.id})">Order</button>
-    </div>
-  `).join("");
-}
 
-// Function to add items to the cart
-function addtoCart(productId) {
-  const product = data.find(item => item.id === productId); // Find product by ID
-  if (product) {
-    cart.push(product); // Add product to cart array
-    alert(`${product.name} has been added to your cart!`);
-    updateCartUI(); // Update cart display
-  }
-}
+let choosenProduct = products[0];
 
-// Function to update cart UI
-function updateCartUI() {
-  const cartContainer = document.querySelector('.table-item');
-  console.log(cartContainer)
-  if (cartContainer) {
-    cartContainer.innerHTML = cart.map(item => ` <tr>
-                <td class="image-cont">
-                    <img src="${item.image}" alt="">
-                    ${item.name}
-                </th>
-                <td></td>
-                <td><input type="number"></td>
-                <td>${item.price}</td>
-                <td></th>
-            </tr>`).join("");
-  } else {
-    cartContainer.innerHTML = "Your cart is empty"
-  }
-}
+const currentProductImg = document.querySelector(".productImg");
+const currentProductTitle = document.querySelector(".productTitle");
+const currentProductPrice = document.querySelector(".productPrice");
+const currentProductColors = document.querySelectorAll(".color");
+const currentProductSizes = document.querySelectorAll(".size");
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', () => {
-  showProduct(); // Display products on page load
+menuItems.forEach((item, index) => {
+  item.addEventListener("click", () => {
+    //change the current slide
+    wrapper.style.transform = `translateX(${-100 * index}vw)`;
+
+    //change the choosen product
+    choosenProduct = products[index];
+
+  
+  });
 });
 
-function toggle() {
-  menu.addEventListener('click', () => {
-    dropdown.classList.toggle('active');
-  });
-  search.addEventListener('click', () => {
-    searchbar.classList.toggle('searchbar-active');
-  });
+
+
+let cart = [];
+
+// Display products
+function displayProducts() {
+  shoesContainer.innerHTML = products.map(product => `
+      <div class="shoe">
+          <img src="${product.image}" alt="${product.name}">
+          <p>${product.name}<br>£${product.price}</p>
+          <button class="order-btn" onclick="addToCart(${product.id})">Order</button>
+      </div>
+  `).join('');
 }
 
-toggle();
+// Add to cart
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  if (product) {
+      cart.push(product);
+      updateCart();
+  }
+}
+
+// Remove from cart
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCart();
+}
+
+// Update cart
+function updateCart() {
+  
+  if(cart.length > 0) {
+    cartContainer.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div class="name">${item.name}</div>
+            <div class="price">£${item.price}</div>
+            <button onclick="removeFromCart(${index})">Remove</button>
+        </div>
+    `).join('');
+  
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    totalElement.textContent = `£${total}`;
+    countElement.textContent = cart.length;
+  } else{
+    cartContainer.innerHTML = "<p>Your Cart is empty!</p>";
+    
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    totalElement.textContent = `£${total}`;
+    countElement.textContent = cart.length;
+  }
+}
+
+// Toggle sidebar
+cartBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('active');
+});
+close.addEventListener('click', () => {
+  sidebar.classList.toggle('active');
+});
+
+
+// Initialize
+displayProducts();
